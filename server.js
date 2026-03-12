@@ -10,6 +10,7 @@ const { connectDB } = require('./config/db');
 // Must load models so Sequelize registers associations before sync
 require('./models/User');
 require('./models/ChargingStation');
+require('./models/ExecutiveProfile');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/stations', require('./routes/station'));
+app.use('/api/executive', require('./routes/executiveProfile'));
 
 // Health check
 app.get('/', (req, res) => {

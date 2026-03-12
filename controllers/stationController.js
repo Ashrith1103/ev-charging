@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const ChargingStation = require('../models/ChargingStation');
 const User = require('../models/User');
 
@@ -53,7 +52,7 @@ const getStationById = async (req, res) => {
 // POST /api/stations
 const createStation = async (req, res) => {
   try {
-    const { name, latitude, longitude, status, powerOutput, connectorType } = req.body;
+    const { name, locationName, latitude, longitude, status, powerOutput, connectorType } = req.body;
 
     if (!name || latitude == null || longitude == null || !powerOutput || !connectorType) {
       return res.status(400).json({ message: 'Please provide all required fields' });
@@ -61,6 +60,7 @@ const createStation = async (req, res) => {
 
     const station = await ChargingStation.create({
       name,
+      locationName,
       latitude,
       longitude,
       status,
@@ -93,11 +93,7 @@ const updateStation = async (req, res) => {
       return res.status(404).json({ message: 'Station not found' });
     }
 
-    if (station.createdBy !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to update this station' });
-    }
-
-    const allowedFields = ['name', 'latitude', 'longitude', 'status', 'powerOutput', 'connectorType'];
+    const allowedFields = ['name', 'locationName', 'latitude', 'longitude', 'status', 'powerOutput', 'connectorType'];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         station[field] = req.body[field];
@@ -127,10 +123,6 @@ const deleteStation = async (req, res) => {
 
     if (!station) {
       return res.status(404).json({ message: 'Station not found' });
-    }
-
-    if (station.createdBy !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to delete this station' });
     }
 
     await station.destroy();

@@ -17,6 +17,10 @@ const ChargingStation = sequelize.define(
         notEmpty: { msg: 'Station name is required' },
       },
     },
+    locationName: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     latitude: {
       type: DataTypes.DECIMAL(10, 7),
       allowNull: false,

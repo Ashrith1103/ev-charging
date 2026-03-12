@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
@@ -11,9 +11,14 @@ const generateToken = (id) => {
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const role = (req.body.role || 'customer').toLowerCase();
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Please provide name, email, and password' });
+    }
+
+    if (!['executive', 'customer'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Use executive or customer' });
     }
 
     const existingUser = await User.findOne({ where: { email } });
@@ -21,12 +26,12 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    const user = await User.create({ name, email, password });
-    const token = generateToken(user.id);
+    const user = await User.create({ name, email, password, role });
+    const token = generateToken(user.id, user.role);
 
     res.status(201).json({
       token,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     // Handle Sequelize validation errors
@@ -52,11 +57,11 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.role);
 
     res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

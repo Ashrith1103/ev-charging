@@ -26,6 +26,17 @@ const User = sequelize.define(
         notEmpty: { msg: 'Email is required' },
       },
     },
+    role: {
+      type: DataTypes.ENUM('executive', 'customer'),
+      allowNull: false,
+      defaultValue: 'customer',
+      validate: {
+        isIn: {
+          args: [['executive', 'customer']],
+          msg: 'Role must be either executive or customer',
+        },
+      },
+    },
     password: {
       type: DataTypes.STRING(255),
       allowNull: false,

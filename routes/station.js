@@ -7,12 +7,12 @@ const {
   updateStation,
   deleteStation,
 } = require('../controllers/stationController');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 router.get('/',     protect, getAllStations);
 router.get('/:id',  protect, getStationById);
-router.post('/',    protect, createStation);
-router.put('/:id',  protect, updateStation);
-router.delete('/:id', protect, deleteStation);
+router.post('/',    protect, authorize('executive'), createStation);
+router.put('/:id',  protect, authorize('executive'), updateStation);
+router.delete('/:id', protect, authorize('executive'), deleteStation);
 
 module.exports = router;
