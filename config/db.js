@@ -18,18 +18,21 @@ const sequelize = new Sequelize(
   }
 );
 
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('MySQL Connected successfully.');
+let isConnected = false;
 
-    // Sync all models (creates tables if they don't exist)
-    await sequelize.sync({ alter: true });
-    console.log('All models synced with database.');
-  } catch (error) {
-    console.error('DB Connection Error:', error.message);
-    process.exit(1);
+const connectDB = async () => {
+  if (isConnected) {
+    return;
   }
+
+  await sequelize.authenticate();
+  console.log('MySQL Connected successfully.');
+
+  // Sync all models (creates tables if they don't exist)
+  await sequelize.sync({ alter: true });
+  console.log('All models synced with database.');
+
+  isConnected = true;
 };
 
 module.exports = { sequelize, connectDB };
